@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source menu
+
+TMP_MENU=$(mktemp /tmp/menuXXX)
+trap "rm -f $TMP_MENU" 0 1 2 5 15
+
+while true;do
+	do_main_menu $TMP_MENU
+done 
