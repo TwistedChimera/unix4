@@ -1,0 +1,32 @@
+#!/bin/bash
+
+source functs
+
+#Temp files
+tmp_file=$(mktemp /tmp/tempXXX) #Stores dialog output
+dates=$(mktemp /tmp/datesXXX) #Stores sch output
+#trap "rm -f $tmp_file $dates" 0 1 2 5 15 #Delete files after use,esc,ctrl+c
+
+inputbox "FIRST NAME" "First name:" 10 60 $tmp_file "First name:"
+inputbox "LAST NAME" "Last name:" 10 60 $tmp_file "Last name:"
+inputbox "MIDDLE NAME" "Middle name:" 10 60 $tmp_file "Middle name:"
+inputbox "STUDENT NUMBER" "Student number:" 10 60 $tmp_file "Student number:"
+inputbox "EMAIL" "This is used to email your qr code to you \nEmail address:" 10 60 $tmp_file "Email:"
+sch $tmp_file $dates
+inputbox "SCHEDULE" "When will your schedule start?\nStart date (MM-DD-YYYY):" 10 40 $tmp_file "Schedule start:"
+inputbox "SCHEDULE" "When will your schedule end?\nEnd date (MM-DD-YYYY):" 10 40 $tmp_file "Schedule end:"
+
+for ITEMS in $(cat $dates);do
+	while [ true ];do
+		[ -n "$(cat $dates | grep -o "$ITEMS")" ] && { 
+			inputbox "SCHEDULE" "Time start for $ITEMS\n(00:00-23:59)" 10 30 $tmp_file "$ITEMS start:"
+			inputbox "SCHEDULE" "Time end for $ITEMS\n(00:00-23:59)" 10 30 $tmp_file "$ITEMS end:"
+			timeAgain $tmp_file "$ITEMS" "AGAIN?"
+			if (( $(echo $?) == 0 ));then
+				continue
+			else
+				break
+			fi
+		 }
+	done
+done
