@@ -1,39 +1,27 @@
 #!/bin/bash
 
-(( WHIPTAIL_OK=0 ))
-(( WHIPTAIL_CANCEL=1 ))
-(( WHIPTAIL_ESC=255 ))
+# Possible exit statuses
+# WHIPTAIL_OK=0 
+# WHIPTAIL_CANCEL=1 
+# WHIPTAIL_ESC=255 
+
+#3>&1 1>&2 2>&3 swaps stderr and stdout so we can store output in a variable
 
 inputbox() { #title, message, width, height, tmp_file, ok_string
 	whiptail --title "$1" \
 	  --clear \
 	  --inputbox \
-	"$2" $3 $4 2> $5
+	"$2" $3 $4 3>&1 1>&2 2>&3
 
-	return_value=$?
-
-	case $return_value in
-		$WHIPTAIL_OK)
-			echo "$6 $(cat $5)"
-			;;
-		$WHIPTAIL_CANCEL)
-			echo "Cancel pressed."
-			;;
-		$WHIPTAIL_ESC)
-			if [ -s $5 ];then
-				cat $5
-			else
-				echo "ESC pressed."
-			fi
-			;;
-	esac
+	exit_status=$?
+	return $exit_status
 }
 
 sch() { #tmp_file, dates
 	whiptail --title "SCHEDULE" \
 	  --clear \
 	  --checklist \
-	"Choose when you are scheduled:" 15 25 7 2> $1 2> $2 \
+	"Choose when you are scheduled:" 15 25 7 3>&1 1>&2 2>&3 \
 	"Monday" "" OFF \
 	"Tuesday" "" OFF \
 	"Wednesday" "" OFF \
@@ -42,145 +30,16 @@ sch() { #tmp_file, dates
 	"Saturday" "" OFF \
 	"Sunday" "" OFF  
 
-	return_value=$?
-
-	case $return_value in
-		$WHIPTAIL_OK)
-			echo "Schedule: $(cat $1)"
-			;;
-		$WHIPTAIL_CANCEL)
-			echo "Cancel pressed."
-			;;
-		$WHIPTAIL_ESC)
-			if [ -s $1 ];then
-				cat $1
-			else
-				echo "ESC pressed."
-			fi
-			;;
-	esac
-}
-
-schStart() { #tmp_file
-	whiptail --title "SCHEDULE" \
-	  --clear \
-	  --inputbox \
-	"When will your schedule start? \nStart date (MM-DD-YYYY):" 15 30 2> $1
-
-	return_value=$?
-
-	case $return_value in
-		$WHIPTAIL_OK)
-			echo "Schedule start: $(cat $1)"
-			;;
-		$WHIPTAIL_CANCEL)
-			echo "Cancel pressed."
-			;;
-		$WHIPTAIL_ESC)
-			if [ -s $1 ];then
-				cat $1
-			else
-				echo "ESC pressed."
-			fi
-			;;
-	esac
-}
-
-schEnd() { #tmp_file
-	whiptail --title "SCHEDULE" \
-	  --clear \
-	  --inputbox \
-	"When will your schedule end? \nEnd date (MM-DD-YYYY):" 15 30 2> $1
-
-	return_value=$?
-
-	case $return_value in
-		$WHIPTAIL_OK)
-			echo "Schedule end: `cat $1`"
-			;;
-		$WHIPTAIL_CANCEL)
-			echo "Cancel pressed."
-			;;
-		$WHIPTAIL_ESC)
-			if [ -s $1 ];then
-				cat $1
-			else echo "ESC pressed."
-			fi
-			;;
-	esac
-}
-
-timeStart() { #tmp_file, day_string, title
-	whiptail --title "$3" \
-		--clear \
-		--inputbox \
-	"Time start for $2" 20 25 2> $1
-
-	return_value=$?
-
-	case $return_value in
-		$WHIPTAIL_OK)
-			echo "$2 $(cat $1)"
-			;;
-		$WHIPTAIL_CANCEL)
-			echo "Cancel pressed."
-			;;
-		$WHIPTAIL_ESC)
-			if [ -s $1 ];then
-				cat $1
-			else
-				echo "ESC pressed."
-			fi
-			;;
-	esac
-}
-
-timeEnd() { #tmp_file, day_string, title
-	whiptail --title "$3" \
-		--clear \
-		--inputbox \
-	"Time end for $2" 20 25 2> $1
-
-	return_value=$?
-
-	case $return_value in
-		$WHIPTAIL_OK)
-			echo "$2 $(cat $1)"
-			;;
-		$WHIPTAIL_CANCEL)
-			echo "Cancel pressed."
-			;;
-		$WHIPTAIL_ESC)
-			if [ -s $1 ];then
-				cat $1
-			else
-				echo "ESC pressed."
-			fi
-			;;
-	esac
+	exit_status=$?
+	return $exit_status
 }
 
 timeAgain() { #tmp_file, day_string, title
 	whiptail --title "$3" \
 		--clear \
 		--yesno \
-	"Add another time schedule for $2?" 15 30 2> $1
+	"Add another time schedule for $2?" 15 30 3>&1 1>&2 2>&3
 
-	return_value=$?
-
-	case $return_value in
-		$WHIPTAIL_OK)
-			return $WHIPTAIL_OK
-			;;
-		$WHIPTAIL_CANCEL)
-			return $WHIPTAIL_CANCEL
-			;;
-		$WHIPTAIL_ESC)
-			if [ -s $1 ];then
-				cat $1
-			else
-				return $WHIPTAIL_ESC
-			fi
-			;;
-	esac
+	exit_status=$?
+	return $exit_status
 }

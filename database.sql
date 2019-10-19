@@ -37,3 +37,10 @@ END//
 DELIMITER ;
 
 CALL qr.spUSR();
+
+DELIMITER //
+CREATE PROCEDURE qr.spInsertUserData(IN fn VARCHAR(30), IN ln VARCHAR(30), IN mn VARCHAR(30), IN studNum VARCHAR(10), IN email VARCHAR(50))
+BEGIN 
+	INSERT INTO qr.users (firstName,lastName,middleName,studNum,email) VALUES (fn,ln,mn,studNum,email);
+END//
+DELIMITER ;

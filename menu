@@ -1,0 +1,240 @@
+#!/bin/bash
+
+#Global variables
+DAY="" #Input from do_schedule 
+FLAG=0
+
+# Possible exit statuses
+(( WHIPTAIL_OK=0 ))
+(( WHIPTAIL_CANCEL=1 ))
+(( WHIPTAIL_ESC=255 ))
+
+# Database variable lengths
+(( VARCHAR_9=9 ))
+(( VARCHAR_10=10 ))
+(( VARCHAR_30=30 ))
+(( VARCHAR_50=50 ))
+
+#3>&1 1>&2 2>&3 swaps stderr and stdout so we can store output in a variable
+
+do_first_name() { 
+	FN="$(whiptail --title "REGISTER" --inputbox "First name:" 0 0 3>&1 1>&2 2>&3)"
+	
+	exit_status=$?
+
+	(( ${#FN} > VARCHAR_30 )) && { whiptail --msgbox "E001: Over character limit (30)" 10 15; do_first_name; }
+	[ -n "$(echo $FN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Letters only" 10 15; do_first_name; }
+	[ -n "$(echo $FN|grep -o [[:digit:]])" ] && { whiptail --msgbox "E003: Letters only" 10 15; do_first_name; }
+
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		do_last_name $1;;
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		do_main_menu ;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+do_last_name() { 
+	LN="$(whiptail --title "REGISTER" --inputbox "Last name:" 0 0 3>&1 1>&2 2>&3)"
+
+	exit_status=$?
+
+	(( ${#LN} > VARCHAR_30 )) && { whiptail --msgbox "E001: Over character limit (30)" 10 15; do_first_name; }
+	[ -n "$(echo $LN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Avoid punctuations" 10 15; do_first_name; }
+	[ -n "$(echo $LN|grep -o [[:digit:]])" ] && { whiptail --msgbox "E003: Letters only" 10 15; do_first_name; }
+
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		do_middle_name $1;;
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		do_main_menu ;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+do_middle_name() { 
+	MN="$(whiptail --title "REGISTER" --inputbox "(FULL) Middle name:" 0 0 3>&1 1>&2 2>&3)"
+
+	exit_status=$?
+
+	(( ${#MN} > VARCHAR_30 )) && { whiptail --msgbox "E001: Over character limit (30)" 10 15; do_first_name; }
+	[ -n "$(echo $MN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Avoid punctuations" 10 15; do_first_name; }
+	[ -n "$(echo $MN|grep -o [[:digit:]])" ] && { whiptail --msgbox "E003: Letters only" 10 15; do_first_name; }
+
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		do_student_number $1 ;;
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		do_main_menu ;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+do_student_number() { 
+	SN="$(whiptail --title "REGISTER" --inputbox "Student number:" 0 0 3>&1 1>&2 2>&3)"
+
+	exit_status=$?
+
+	(( ${#SN} > VARCHAR_10 )) && { whiptail --msgbox "E004: Over character limit (10)" 10 15; do_first_name; }
+	[ -n "$(echo $SN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Avoid punctuations" 10 15; do_first_name; }
+	[ -n "$(echo $SN|grep -o [[:alpha:]])" ] && { whiptail --msgbox "E005: Number Only" 10 15; do_first_name; }
+
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		do_email $1 ;;
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		do_main_menu ;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+do_email() { 
+	EM="$(whiptail --title "REGISTER" --inputbox "email:" 0 0 3>&1 1>&2 2>&3)"
+	
+	exit_status=$?
+	(( ${#EM} > VARCHAR_50 )) && { whiptail --msgbox "E006: Over character limit (50)" 10 15; do_first_name; }
+	[ "$(echo $EM|grep -o .$)" = "." ] && { whiptail --msgbox "E007: Cannot have period as last character" 10 15; do_first_name; }
+	[ "$(echo $EM|grep -o ^'.')" = "." ] && { whiptail --msgbox "E008: Cannot have period as first character" 10 15; do_first_name; }
+	[ -z "$(echo $EM|grep -o '@')" ] && { whiptail --msgbox "E009: Missing @ sign" 10 15; do_first_name; }
+	[ "$(echo $EM|grep -o '@'|wc -m)" -gt 2 ] && { whiptail --msgbox "E009: Too many @s" 10 15; do_first_name; }
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		do_schedule $1 ;;
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		do_main_menu ;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+
+do_schedule() { 
+	DAY=$( whiptail --title "SCHEDULE" --checklist "Choose when you are scheduled:" 0 0 7 \
+	"Monday" "" OFF \
+	"Tuesday" "" OFF \
+	"Wednesday" "" OFF \
+	"Thursday" "" OFF \
+	"Friday" "" OFF \
+	"Saturday" "" OFF \
+	"Sunday" "" OFF 3>&1 1>&2 2>&3 ) 
+
+	exit_status=$?
+	echo $DAY 2>> $1
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		do_schedule_start $1 ;;
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		do_main_menu ;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+do_schedule_start() {
+	SS="$(whiptail --title "REGISTER" --inputbox "When does your schedule start?\n(YYYY-MM-DD)" 0 0 3>&1 1>&2 2>&3)"
+
+	#(( dd
+	#[ -z '$(echo $SS|grep "[0-9]*[-][1-9]*[-][1-9]*")' ]
+
+	exit_status=$?
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		do_schedule_end $1;;
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		do_main_menu ;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+do_schedule_end() { 
+	whiptail --title "REGISTER" --inputbox "When does your schedule end?\n(YYYY-MM-DD)" 0 0 3>&1 1>&2 2>&3
+
+	exit_status=$?
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		do_time_again $1;;
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		do_main_menu ;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+do_time_again() {
+	WEEK="Monday Tuesday Wednesday Thursday Friday Saturday Sunday"
+	for ITEMS in $WEEK;do
+		if [ -n "$(echo $DAY | grep -o $ITEMS)" ];then
+			while true;do 	
+				whiptail --title "REGISTER" --yesno "Add a time schedule for $ITEMS?" 0 0 3>&1 1>&2 2>&3
+
+				exit_status=$?
+				case $exit_status in
+	  			  $WHIPTAIL_OK)
+					do_time_in $1 $ITEMS
+					do_time_out $1 $ITEMS
+					(( "$(echo $?)" == "$WHIPTAIL_OK" )) && { continue; } || { break; } ;;
+	  			  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+					break ;;
+	  			  *)
+					whiptail --msgbox "Error" 10 15 ;;
+				esac
+			done
+		fi
+	done
+}
+
+do_time_in() { #$2=WEEK
+	whiptail --title "REGISTER" --inputbox "When do you time in on $2?\n(HH:MM)" 0 0 3>&1 1>&2 2>&3
+
+	exit_status=$?
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		;; 	
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		do_main_menu ;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+do_time_out() { #$2=WEEK
+	whiptail --title "REGISTER" --inputbox "When do you time out on $2?\n(HH-MM)" 0 0 3>&1 1>&2 2>&3
+
+	exit_status=$?
+	case $exit_status in
+	  $WHIPTAIL_OK) 	
+		;; 	
+	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
+		;;
+	  *)
+		whiptail --msgbox "Error" 10 15 ;;
+	esac
+}
+
+do_main_menu() {
+	SEL=$( whiptail --title "MAIN MENU" --menu "Welcome!" 0 0 0 \
+		"a REGISTER" "For new users" \
+		"b CHANGE SCHEDULE" "Change existing schedule" \
+		"q QUIT" "Exit main menu" 3>&1 1>&2 2>&3 )
+	
+	exit_status=$?
+	if (( exit_status == WHIPTAIL_CANCEL || exit_status == WHIPTAIL_ESC ));then 
+		exit 0
+	elif (( exit_status == WHIPTAIL_OK ));then
+		case "$SEL" in
+		  a\ *) 
+			do_first_name $1 ;;
+		  b\ *) 
+			;; #place change schedule here 
+		  q\ *) 
+			clear
+			exit ;;
+		esac
+	fi
+}

@@ -2,21 +2,29 @@
 
 source functs
 
+#Database credentials
+MASTER_DB_USER='pi'
+MASTER_DB_PASSWD='mitUnix06'
+MASTER_DB_PORT='3160'
+MASTER_DB_HOST='localhost'
+MASTER_DB_NAME='qr'
+
 #Temp files
 tmp_file=$(mktemp /tmp/tempXXX) #Stores dialog output
-dates=$(mktemp /tmp/datesXXX) #Stores sch output
-#trap "rm -f $tmp_file $dates" 0 1 2 5 15 #Delete files after use,esc,ctrl+c
+dates=$(sed -n '6p;7q' $tmp_file) #Get dates from input
+trap "rm -f $tmp_file $dates" 0 1 2 5 15 #Delete files after use,esc,ctrl+c
 
-inputbox "FIRST NAME" "First name:" 10 60 $tmp_file "First name:"
-inputbox "LAST NAME" "Last name:" 10 60 $tmp_file "Last name:"
-inputbox "MIDDLE NAME" "Middle name:" 10 60 $tmp_file "Middle name:"
-inputbox "STUDENT NUMBER" "Student number:" 10 60 $tmp_file "Student number:"
-inputbox "EMAIL" "This is used to email your qr code to you \nEmail address:" 10 60 $tmp_file "Email:"
-sch $tmp_file $dates
-inputbox "SCHEDULE" "When will your schedule start?\nStart date (MM-DD-YYYY):" 10 40 $tmp_file "Schedule start:"
-inputbox "SCHEDULE" "When will your schedule end?\nEnd date (MM-DD-YYYY):" 10 40 $tmp_file "Schedule end:"
+#Get user input
+fName=$(inputbox "FIRST NAME" "First name:" 10 60 $tmp_file "")
+lName=$(inputbox "LAST NAME" "Last name:" 10 60 $tmp_file "")
+mName=$(inputbox "MIDDLE NAME" "Middle name:" 10 60 $tmp_file "")
+studNum=$(inputbox "STUDENT NUMBER" "Student number:" 10 60 $tmp_file "")
+email=$(inputbox "EMAIL" "This is used to email your qr code to you \nEmail address:" 10 60 $tmp_file "")
+schedule=$(sch $tmp_file $dates)
+scheduleStart=$(inputbox "SCHEDULE" "When will your schedule start?\nStart date (MM-DD-YYYY):" 10 40 $tmp_file "Schedule start:")
+scheduleEnd=$(inputbox "SCHEDULE" "When will your schedule end?\nEnd date (MM-DD-YYYY):" 10 40 $tmp_file "Schedule end:")
 
-for ITEMS in $(cat $dates);do
+for ITEMS in $(cat $tmp);do
 	while [ true ];do
 		[ -n "$(cat $dates | grep -o "$ITEMS")" ] && { 
 			inputbox "SCHEDULE" "Time start for $ITEMS\n(00:00-23:59)" 10 30 $tmp_file "$ITEMS start:"
@@ -30,3 +38,30 @@ for ITEMS in $(cat $dates);do
 		 }
 	done
 done
+
+#store user input in temp file for parsing
+echo $fName >> $tmp_file
+echo $lName >> $tmp_file
+echo $mName >> $tmp_file
+echo $email >> $tmp_file
+echo $studNum >> $tmp_file
+echo $schedule >> $tmp_file
+echo $scheduleStart >> $tmp_file
+echo $scheduleEnd >> $tmp_file
+
+#store user input in variables
+A="$(sed -n '1p;2q' $tmp_file)"
+B="$(sed -n '2p;3q' $tmp_file)"
+C="$(sed -n '3p;4q' $tmp_file)"
+D="$(sed -n '4p;5q' $tmp_file)"
+E="$(sed -n '4p;6q' $tmp_file)"
+F="1"
+
+#Setting up queries 
+SQL_Query1="call spInsertUserData('${A}','${B}','${C}','${D}','${F}')"
+
+#Execute queries
+mysql -u$MASTER_DB_USER -p$MASTER_DB_PASSWD -D$MASTER_DB_NAME <<EOF
+$SQL_Query1
+EOF
+
