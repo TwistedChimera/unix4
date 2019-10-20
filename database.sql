@@ -12,19 +12,25 @@ CREATE TABLE qr.users (userID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	studNum VARCHAR(10) NOT NULL,
 	email VARCHAR(50) NOT NULL);
 
-CREATE TABLE qr.schedule (schID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	schStart DATE NOT NULL,
-	schEnd DATE NOT NULL,
-	day VARCHAR(9) NOT NULL,
-	dayStart TIME NOT NULL,
-	dayEnd TIME NOT NULL);
+CREATE TABLE qr.schedule (scheduleID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	scheduleStart DATE NOT NULL,
+	scheduleEnd DATE NOT NULL,
+	scheduleDay VARCHAR(9) NOT NULL,
+	scheduleTimeIn TIME NOT NULL,
+	scheduleTimeOut TIME NOT NULL);
 
-CREATE TABLE qr.userSchedRelation (userID INT NOT NULL, 
-	schID INT NOT NULL,
+CREATE TABLE qr.attendance (attendanceID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	attendanceTimeIn TIME NOT NULL,
+	attendanceTimeOut TIME NOT NULL);
+
+CREATE TABLE qr.userScheduleAttendanceRelation (userID INT NOT NULL, 
+	scheduleID INT NOT NULL, attendanceID INT NOT NULL, 
 	FOREIGN KEY (userID) REFERENCES qr.users(userID),
-	FOREIGN KEY (schID) REFERENCES qr.schedule(schID));
+	FOREIGN KEY (scheduleID) REFERENCES qr.schedule(scheduleID),
+	FOREIGN KEY (attendanceID) REFERENCES qr.attendance(attendanceID)
+);
 
-
+/*
 DELIMITER //
 CREATE PROCEDURE  qr.spUSR()
 BEGIN
@@ -35,8 +41,16 @@ BEGIN
 	INSERT INTO qr.users (firstName,lastName,middleName,studNum,email) VALUES ("ay","lmao","gg","111","adsf@mail.com");
 END//
 DELIMITER ;
+*/
 
-CALL qr.spUSR();
+/*CALL qr.spUSR();*/
+
+DELIMITER //
+CREATE PROCEDURE qr.spInsertUserData(IN fn VARCHAR(30), IN ln VARCHAR(30), IN mn VARCHAR(30), IN studNum VARCHAR(10), IN email VARCHAR(50))
+BEGIN 
+	INSERT INTO qr.users (firstName,lastName,middleName,studNum,email) VALUES (fn,ln,mn,studNum,email);
+END//
+DELIMITER ;
 
 DELIMITER //
 CREATE PROCEDURE qr.spInsertUserData(IN fn VARCHAR(30), IN ln VARCHAR(30), IN mn VARCHAR(30), IN studNum VARCHAR(10), IN email VARCHAR(50))

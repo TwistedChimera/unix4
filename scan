@@ -1,0 +1,9 @@
+#!/bin/bash
+
+PATH="/var/lib/motion"
+inotifywait -m /path -e create -e moved_to |
+	while read path action file; do
+		zbarimg -q $path 
+	done
+	
+	

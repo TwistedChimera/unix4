@@ -21,16 +21,15 @@ do_first_name() {
 	FN="$(whiptail --title "REGISTER" --inputbox "First name:" 0 0 3>&1 1>&2 2>&3)"
 	
 	exit_status=$?
-
-	(( ${#FN} > VARCHAR_30 )) && { whiptail --msgbox "E001: Over character limit (30)" 10 15; do_first_name; }
-	[ -n "$(echo $FN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Letters only" 10 15; do_first_name; }
-	[ -n "$(echo $FN|grep -o [[:digit:]])" ] && { whiptail --msgbox "E003: Letters only" 10 15; do_first_name; }
-
 	case $exit_status in
-	  $WHIPTAIL_OK) 	
-		do_last_name $1;;
+	  $WHIPTAIL_OK)
+		[ "${#FN}" -eq 0 ] && { whiptail --msgbox "E100: No input" 10 15; do_main_menu $1; }
+		(( ${#FN} > VARCHAR_30 )) && { whiptail --msgbox "E001: Over character limit (30)" 10 15; do_main_menu $1; }
+		[ -n "$(echo $FN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Letters only" 10 15; do_main_menu $1; }
+		[ -n "$(echo $FN|grep -o [[:digit:]])" ] && { whiptail --msgbox "E003: Letters only" 10 15; do_main_menu $1; }
+		do_last_name $1 ;;
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		do_main_menu ;;
+		do_main_menu $1 ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
@@ -40,16 +39,15 @@ do_last_name() {
 	LN="$(whiptail --title "REGISTER" --inputbox "Last name:" 0 0 3>&1 1>&2 2>&3)"
 
 	exit_status=$?
-
-	(( ${#LN} > VARCHAR_30 )) && { whiptail --msgbox "E001: Over character limit (30)" 10 15; do_first_name; }
-	[ -n "$(echo $LN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Avoid punctuations" 10 15; do_first_name; }
-	[ -n "$(echo $LN|grep -o [[:digit:]])" ] && { whiptail --msgbox "E003: Letters only" 10 15; do_first_name; }
-
 	case $exit_status in
 	  $WHIPTAIL_OK) 	
-		do_middle_name $1;;
+		[ "${#LN}" -eq 0 ] && { whiptail --msgbox "E100: No input" 10 15; do_main_menu $1; }
+		(( ${#LN} > VARCHAR_30 )) && { whiptail --msgbox "E001: Over character limit (30)" 10 15; do_main_menu $1; }
+		[ -n "$(echo $LN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Avoid punctuations" 10 15; do_main_menu $1; }
+		[ -n "$(echo $LN|grep -o [[:digit:]])" ] && { whiptail --msgbox "E003: Letters only" 10 15; do_main_menu $1; }
+		do_middle_name $1 ;;
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		do_main_menu ;;
+		do_main_menu $1 ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
@@ -59,16 +57,15 @@ do_middle_name() {
 	MN="$(whiptail --title "REGISTER" --inputbox "(FULL) Middle name:" 0 0 3>&1 1>&2 2>&3)"
 
 	exit_status=$?
-
-	(( ${#MN} > VARCHAR_30 )) && { whiptail --msgbox "E001: Over character limit (30)" 10 15; do_first_name; }
-	[ -n "$(echo $MN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Avoid punctuations" 10 15; do_first_name; }
-	[ -n "$(echo $MN|grep -o [[:digit:]])" ] && { whiptail --msgbox "E003: Letters only" 10 15; do_first_name; }
-
 	case $exit_status in
 	  $WHIPTAIL_OK) 	
+		[ "${#MN}" -eq 0 ] && { whiptail --msgbox "E100: No input" 10 15; do_main_menu $1; }
+		(( ${#MN} > VARCHAR_30 )) && { whiptail --msgbox "E001: Over character limit (30)" 10 15; do_main_menu $1; }
+		[ -n "$(echo $MN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Avoid punctuations" 10 15; do_main_menu $1; }
+		[ -n "$(echo $MN|grep -o [[:digit:]])" ] && { whiptail --msgbox "E003: Letters only" 10 15; do_main_menu $1; }
 		do_student_number $1 ;;
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		do_main_menu ;;
+		do_main_menu $1 ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
@@ -78,16 +75,15 @@ do_student_number() {
 	SN="$(whiptail --title "REGISTER" --inputbox "Student number:" 0 0 3>&1 1>&2 2>&3)"
 
 	exit_status=$?
-
-	(( ${#SN} > VARCHAR_10 )) && { whiptail --msgbox "E004: Over character limit (10)" 10 15; do_first_name; }
-	[ -n "$(echo $SN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Avoid punctuations" 10 15; do_first_name; }
-	[ -n "$(echo $SN|grep -o [[:alpha:]])" ] && { whiptail --msgbox "E005: Number Only" 10 15; do_first_name; }
-
 	case $exit_status in
 	  $WHIPTAIL_OK) 	
+		[ "${#SN}" -eq 0 ] && { whiptail --msgbox "E100: No input" 10 15; do_main_menu $1; }
+		(( ${#SN} > VARCHAR_10 )) && { whiptail --msgbox "E004: Over character limit (10)" 10 15; do_main_menu $1; }
+		[ -n "$(echo $SN|grep -o [[:punct:]])" ] && { whiptail --msgbox "E002: Avoid punctuations" 10 15; do_main_menu $1; }
+		[ -n "$(echo $SN|grep -o [[:alpha:]])" ] && { whiptail --msgbox "E005: Number Only" 10 15; do_main_menu $1; }
 		do_email $1 ;;
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		do_main_menu ;;
+		do_main_menu $1 ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
@@ -97,16 +93,17 @@ do_email() {
 	EM="$(whiptail --title "REGISTER" --inputbox "email:" 0 0 3>&1 1>&2 2>&3)"
 	
 	exit_status=$?
-	(( ${#EM} > VARCHAR_50 )) && { whiptail --msgbox "E006: Over character limit (50)" 10 15; do_first_name; }
-	[ "$(echo $EM|grep -o .$)" = "." ] && { whiptail --msgbox "E007: Cannot have period as last character" 10 15; do_first_name; }
-	[ "$(echo $EM|grep -o ^'.')" = "." ] && { whiptail --msgbox "E008: Cannot have period as first character" 10 15; do_first_name; }
-	[ -z "$(echo $EM|grep -o '@')" ] && { whiptail --msgbox "E009: Missing @ sign" 10 15; do_first_name; }
-	[ "$(echo $EM|grep -o '@'|wc -m)" -gt 2 ] && { whiptail --msgbox "E009: Too many @s" 10 15; do_first_name; }
 	case $exit_status in
 	  $WHIPTAIL_OK) 	
+		[ "${#EM}" -eq 0 ] && { whiptail --msgbox "E100: No input" 10 15; do_email $1; }
+		(( ${#EM} > VARCHAR_50 )) && { whiptail --msgbox "E006: Over character limit (50)" 10 15; do_main_menu $1; }
+		[ "$(echo $EM|grep -o .$)" = "." ] && { whiptail --msgbox "E007: Cannot have period as last character" 10 15; do_main_menu $1; }
+		[ "$(echo $EM|grep -o ^'.')" = "." ] && { whiptail --msgbox "E008: Cannot have period as first character" 10 15; do_main_menu $1; }
+		[ -z "$(echo $EM|grep -o '@')" ] && { whiptail --msgbox "E009: Missing @ sign" 10 15; do_main_menu $1; }
+		[ "$(echo $EM|grep -o '@'|wc -m)" -gt 2 ] && { whiptail --msgbox "E010: Too many @s" 10 15; do_main_menu $1; }
 		do_schedule $1 ;;
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		do_main_menu ;;
+		do_main_menu $1 ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
@@ -124,12 +121,11 @@ do_schedule() {
 	"Sunday" "" OFF 3>&1 1>&2 2>&3 ) 
 
 	exit_status=$?
-	echo $DAY 2>> $1
 	case $exit_status in
 	  $WHIPTAIL_OK) 	
 		do_schedule_start $1 ;;
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		do_main_menu ;;
+		do_main_menu $1 ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
@@ -138,29 +134,38 @@ do_schedule() {
 do_schedule_start() {
 	SS="$(whiptail --title "REGISTER" --inputbox "When does your schedule start?\n(YYYY-MM-DD)" 0 0 3>&1 1>&2 2>&3)"
 
-	#(( dd
-	#[ -z '$(echo $SS|grep "[0-9]*[-][1-9]*[-][1-9]*")' ]
-
 	exit_status=$?
 	case $exit_status in
 	  $WHIPTAIL_OK) 	
-		do_schedule_end $1;;
+		[ "${#SS}" -eq 0 ] && { whiptail --msgbox "E100: No input" 10 15; do_main_menu $1; }
+		(( ${#SS} > VARCHAR_10 )) && { whiptail --msgbox "E004: Over character limit (10)" 10 15; do_main_menu $1; }
+		#[ -n "$(echo $SS|grep -o '[!@#%^()+]')" ] && { whiptail --msgbox "E011: Numbers Only" 0 0; do_main_menu $1; } 
+		#[ -n '$(echo $SS|grep -o "[[:alpha]]")' ] && { whiptail --msgbox "E011: Numbers Only" 0 0; do_main_menu $1; } 
+		#[[ '$(echo $SS|cut -f1 -d-|wc -m)' -eq 4 || '$(echo $SS|cut -f2 -d-|wc -m)' -eq 2 || '$(echo $SS|cut -f3 -d-|wc -m)' -eq 2 ]] || { whiptail --msgbox "E012: Wrong format" 0 0; do_main_menu $1; } 
+		#[[ '$(echo $SS|cut -f1 -d-)' -eq '$(date +"%Y")' || ('$(echo $SS|cut -f2 -d-)' -ge 0 && '$(echo $SS|cut -f2 -d-)' -le 12) || ( '$(echo $SS|cut -f3 -d-)' -ge 0 && '$(echo $SS|cut -f3 -d-)' -le 31 ) ]] || { whiptail --msgbox "E012: Wrong format" 0 0; do_main_menu $1; } 
+		do_schedule_end $1 ;;
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		do_main_menu ;;
+		do_main_menu $1 ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
 }
 
 do_schedule_end() { 
-	whiptail --title "REGISTER" --inputbox "When does your schedule end?\n(YYYY-MM-DD)" 0 0 3>&1 1>&2 2>&3
+	SE="$(whiptail --title "REGISTER" --inputbox "When does your schedule end?\n(YYYY-MM-DD)" 0 0 3>&1 1>&2 2>&3)"
 
 	exit_status=$?
 	case $exit_status in
 	  $WHIPTAIL_OK) 	
-		do_time_again $1;;
+		[ "${#SE}" -eq 0 ] && { whiptail --msgbox "E100: No input" 10 15; do_main_menu $1; }
+		(( ${#SE} > VARCHAR_10 )) && { whiptail --msgbox "E004: Over character limit (10)" 10 15; do_main_menu $1; }
+		#[ -n '$(echo $SE|grep -o "[!@#$%^&*()+]")' ] && { whiptail --msgbox "E011: Numbers Only" 0 0; do_main_menu $1; } 
+		#[ -n '$(echo $SE|grep -o "[[:alpha]]")' ] && { whiptail --msgbox "E011: Numbers Only" 0 0; do_main_menu $1; } 
+		#[[ '$(echo $SE|cut -f1 -d-|wc -m)' -eq 4 || '$(echo $SE|cut -f2 -d-|wc -m)' -eq 2 || '$(echo $SE|cut -f3 -d-|wc -m)' -eq 2 ]] || { whiptail --msgbox "E012: Wrong format" 0 0; do_main_menu $1; } 
+		#[[ '$(echo $SE|cut -f1 -d-)' -eq '$(date +"%Y")' || ('$(echo $SE|cut -f2 -d-)' -ge 0 && '$(echo $SE|cut -f2 -d-)' -le 12) || ('$(echo $SE|cut -f3 -d-)' -ge 0 && '$(echo $SE|cut -f3 -d-)' -le 31) ]] || { whiptail --msgbox "E012: Wrong format" 0 0; do_main_menu $1; } 
+		do_time_again $1 ;;
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		do_main_menu ;;
+		do_main_menu $1 ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
@@ -190,38 +195,51 @@ do_time_again() {
 }
 
 do_time_in() { #$2=WEEK
-	whiptail --title "REGISTER" --inputbox "When do you time in on $2?\n(HH:MM)" 0 0 3>&1 1>&2 2>&3
+	TI="$(whiptail --title "REGISTER" --inputbox "When do you time in on $2?\n(HH:MM)" 0 0 3>&1 1>&2 2>&3)"
 
 	exit_status=$?
+
+
 	case $exit_status in
 	  $WHIPTAIL_OK) 	
+		[ "${#TI}" -eq 0 ] && { whiptail --msgbox "E100: No input" 10 15; do_main_menu $1; }
+		(( ${#TI} > 5 )) && { whiptail --msgbox "E020: Over character limit (5)" 10 15; do_main_menu $1; }
+		#[ -n '$(echo $TI|grep -o "[!@#$%^&*()+]")' ] && { whiptail --msgbox "E011: Numbers Only" 0 0; do_main_menu $1; } 
+		#[ -n '$(echo $TI|grep -o "[[:alpha]]")' ] && { whiptail --msgbox "E011: Numbers Only" 0 0; do_main_menu $1; } 
+		#[[ '$(echo $TI|cut -f1 -d-|wc -m)' -eq 2 || '$(echo $TI|cut -f2 -d-|wc -m)' -eq 2 ]] || { whiptail --msgbox "E012: Wrong format" 0 0; do_main_menu $1; }
+		#[[ ('$(echo $TI|cut -f1 -d-)' -ge 0 && '$(echo $TI|cut -f1 -d-)' -le 23) || ('$(echo $TI|cut -f3 -d-)' -ge 0 && '$(echo $TI|cut -f3 -d-)' -le 59) ]] || { whiptail --msgbox "E012: Wrong format" 0 0; do_main_menu $1; } 
 		;; 	
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		do_main_menu ;;
+		do_main_menu $1 ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
 }
 
 do_time_out() { #$2=WEEK
-	whiptail --title "REGISTER" --inputbox "When do you time out on $2?\n(HH-MM)" 0 0 3>&1 1>&2 2>&3
+	TO="$(whiptail --title "REGISTER" --inputbox "When do you time out on $2?\n(HH:MM)" 0 0 3>&1 1>&2 2>&3)"
 
 	exit_status=$?
 	case $exit_status in
 	  $WHIPTAIL_OK) 	
-		;; 	
+		[ "${#TO}" -eq 0 ] && { whiptail --msgbox "E100: No input" 10 15; do_main_menu $1; }
+		(( ${#TO} > 5 )) && { whiptail --msgbox "E020: Over character limit (5)" 10 15; do_main_menu $1; }
+		#[ -n '$(echo $TO|grep -o "[!@#$%^&*()+]")' ] && { whiptail --msgbox "E011: Numbers Only" 0 0; do_main_menu $1; } 
+		#[ -n '$(echo $TO|grep -o "[[:alpha]]")' ] && { whiptail --msgbox "E011: Numbers Only" 0 0; do_main_menu $1; } 
+		#[[ '$(echo $TO|cut -f1 -d-|wc -m)' -eq 2 || '$(echo $TO|cut -f2 -d-|wc -m)' -eq 2 ]] || { whiptail --msgbox "E012: Wrong format" 0 0; do_main_menu $1; } 
+		#[[ ('$(echo $TO|cut -f1 -d-)' -ge 0 && '$(echo $TO|cut -f1 -d-)' -le 23) || ('$(echo $TO|cut -f3 -d-)' -ge 0 && '$(echo $TO|cut -f3 -d-)' -le 59) ]] || { whiptail --msgbox "E012: Wrong format" 0 0; do_main_menu $1; }
+		return $WHIPTAIL_OK ;; 	
 	  $WHIPTAIL_CANCEL | $WHIPTAIL_ESC) 	
-		;;
+		return $WHIPTAIL_CANCEL ;;
 	  *)
 		whiptail --msgbox "Error" 10 15 ;;
 	esac
 }
 
 do_main_menu() {
-	SEL=$( whiptail --title "MAIN MENU" --menu "Welcome!" 0 0 0 \
+	SEL="$( whiptail --title "MAIN MENU" --menu "Welcome!" 0 0 0 \
 		"a REGISTER" "For new users" \
-		"b CHANGE SCHEDULE" "Change existing schedule" \
-		"q QUIT" "Exit main menu" 3>&1 1>&2 2>&3 )
+		"q QUIT" "Exit main menu" 3>&1 1>&2 2>&3 )"
 	
 	exit_status=$?
 	if (( exit_status == WHIPTAIL_CANCEL || exit_status == WHIPTAIL_ESC ));then 
@@ -230,8 +248,6 @@ do_main_menu() {
 		case "$SEL" in
 		  a\ *) 
 			do_first_name $1 ;;
-		  b\ *) 
-			;; #place change schedule here 
 		  q\ *) 
 			clear
 			exit ;;
