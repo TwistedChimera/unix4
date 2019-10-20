@@ -53,8 +53,8 @@ END//
 DELIMITER ;
 
 DELIMITER //
-CREATE PROCEDURE qr.spInsertUserData(IN fn VARCHAR(30), IN ln VARCHAR(30), IN mn VARCHAR(30), IN studNum VARCHAR(10), IN email VARCHAR(50))
+CREATE PROCEDURE qr.spInsertScheduleData(IN schStart DATE, IN schEnd DATE, IN schDay VARCHAR(9), IN schTimeIn TIME, IN schTimeOut TIME)
 BEGIN 
-	INSERT INTO qr.users (firstName,lastName,middleName,studNum,email) VALUES (fn,ln,mn,studNum,email);
+	INSERT INTO qr.schedule (scheduleStart, scheduleEnd, scheduleDay, scheduleTimeIn, scheduleTimeOut) VALUES (schStart, schEnd, schDay,schTimeIn, schTimeOut);
 END//
 DELIMITER ;
