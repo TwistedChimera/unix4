@@ -12,19 +12,23 @@ CREATE TABLE qr.users (userID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	studNum VARCHAR(10) NOT NULL,
 	email VARCHAR(50) NOT NULL);
 
-CREATE TABLE qr.schedule (schID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE qr.schedule (scheduleID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	scheduleStart DATE NOT NULL,
 	scheduleEnd DATE NOT NULL,
 	scheduleDay VARCHAR(9) NOT NULL,
 	scheduleTimeIn TIME NOT NULL,
-	scheduleTimeOut TIME NOT NULL,
-	actualTimeIn TIME,
-	actualTimeOut TIME);
+	scheduleTimeOut TIME NOT NULL);
 
-CREATE TABLE qr.userSchedRelation (userID INT NOT NULL, 
-	schID INT NOT NULL,
+CREATE TABLE qr.attendance (attendanceID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	attendanceTimeIn TIME NOT NULL,
+	attendanceTimeOut TIME NOT NULL);
+
+CREATE TABLE qr.userScheduleAttendanceRelation (userID INT NOT NULL, 
+	scheduleID INT NOT NULL, attendanceID INT NOT NULL, 
 	FOREIGN KEY (userID) REFERENCES qr.users(userID),
-	FOREIGN KEY (schID) REFERENCES qr.schedule(schID));
+	FOREIGN KEY (scheduleID) REFERENCES qr.schedule(scheduleID),
+	FOREIGN KEY (attendanceID) REFERENCES qr.attendance(attendanceID)
+);
 
 /*
 DELIMITER //
@@ -48,12 +52,9 @@ BEGIN
 END//
 DELIMITER ;
 
-/*
 DELIMITER //
-CREATE PROCEDURE qr.spInsertScheduleData(IN schStart DATE, IN schEnd DATE, IN schDay VARCHAR(9), IN schTimeIn TIME, IN schTimeOut TIME, IN actTimeIn TIME, actTimeOut TIME)
+CREATE PROCEDURE qr.spInsertUserData(IN fn VARCHAR(30), IN ln VARCHAR(30), IN mn VARCHAR(30), IN studNum VARCHAR(10), IN email VARCHAR(50))
 BEGIN 
-	INSERT INTO qr.schedule (schStart,schEnd,schDay,l,email) VALUES (fn,ln,mn,studNum,email);
+	INSERT INTO qr.users (firstName,lastName,middleName,studNum,email) VALUES (fn,ln,mn,studNum,email);
 END//
 DELIMITER ;
-*/
-
